@@ -1,6 +1,5 @@
 metadata:
-  version: '3.24'
-  executionPolicy: ALWAYS
+  executionPolicy: IF_CHANGED
 systemConfig:
   baseUrl: ${BASE_URL:""}
   connTimeout: 20
@@ -270,6 +269,38 @@ repositoryConfig:
         blobStoreQuotaConfig:
           quotaLimitBytes: 1073741824
           quotaType: spaceRemainingQuota
+    - name: nuget
+      type: File
+      attrs:
+        file:
+          path: nuget
+        blobStoreQuotaConfig:
+          quotaLimitBytes: 104857600
+          quotaType: spaceRemainingQuota
+    - name: nuget-ext
+      type: File
+      attrs:
+        file:
+          path: nuget-ext
+        blobStoreQuotaConfig:
+          quotaLimitBytes: 1073741824
+          quotaType: spaceRemainingQuota
+    - name: pupy
+      type: File
+      attrs:
+        file:
+          path: pupy
+        blobStoreQuotaConfig:
+          quotaLimitBytes: 104857600
+          quotaType: spaceRemainingQuota
+    - name: pupy-ext
+      type: File
+      attrs:
+        file:
+          path: pupy-ext
+        blobStoreQuotaConfig:
+          quotaLimitBytes: 1073741824
+          quotaType: spaceRemainingQuota
     - name: cloud
       type: S3
       attrs:
@@ -469,6 +500,92 @@ repositoryConfig:
           memberNames:
             - npm-proxy
             - npm-hosted
+    - name: nuget-hosted
+      recipeName: nuget-hosted
+      online: true
+      attrs:
+        storage:
+          blobStoreName: nuget
+          strictContentTypeValidation: true
+          writePolicy: ALLOW_ONCE
+      routingRule: null
+    - name: nuget-proxy
+      recipeName: nuget-proxy
+      online: true
+      attrs:
+        nugetProxy:
+          queryCacheItemMaxAge: 3600
+        proxy:
+          remoteUrl: https://api.nuget.org/v3/index.json
+          contentMaxAge: 1440
+          metadataMaxAge: 1440
+        httpclient:
+          blocked: true
+          autoBlock: true
+          connection:
+            useTrustStore: false
+        storage:
+          blobStoreName: nuget-ext
+          strictContentTypeValidation: true
+        negativeCache:
+          enabled: true
+          timeToLive: 1440
+      routingRule: null
+    - name: nuget
+      recipeName: nuget-group
+      online: true
+      attrs:
+        storage:
+          blobStoreName: nuget-ext
+          strictContentTypeValidation: true
+        group:
+          memberNames:
+            - nuget-proxy
+            - nuget-hosted
+        httpclient: {}
+        nugetProxy: {}
+      routingRule: null
+    - name: pupy-hosted
+      recipeName: pypi-hosted
+      online: true
+      attrs:
+        storage:
+          blobStoreName: pupy
+          strictContentTypeValidation: true
+          writePolicy: ALLOW_ONCE
+      routingRule: null
+    - name: pupy-proxy
+      recipeName: pypi-proxy
+      online: true
+      attrs:
+        proxy:
+          remoteUrl: https://pypi.org/
+          contentMaxAge: 1440
+          metadataMaxAge: 1440
+        httpclient:
+          blocked: false
+          autoBlock: true
+          connection:
+            useTrustStore: false
+        storage:
+          blobStoreName: pupy-ext
+          strictContentTypeValidation: true
+        negativeCache:
+          enabled: true
+          timeToLive: 1440
+      routingRule: null
+    - name: pupy
+      recipeName: pypi-group
+      online: true
+      attrs:
+        storage:
+          blobStoreName: pupy-ext
+          strictContentTypeValidation: true
+        group:
+          memberNames:
+            - pupy-proxy
+            - pupy-hosted
+      routingRule: null
     - name: files
       recipeName: raw-hosted
       online: true

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.nexus.common.app.ApplicationDirectories;
 import org.sonatype.nexus.common.app.ApplicationVersion;
+import org.sonatype.nexus.common.node.NodeAccess;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.inject.Inject;
@@ -35,6 +36,7 @@ public class ConfigHandler {
 
     private final ApplicationVersion appVersion;
     private final ApplicationDirectories appDirs;
+    private final NodeAccess nodeAccess;
     private final SystemConfigHandler systemConfigHandler;
     private final SecurityConfigHandler securityConfigHandler;
     private final RepositoryConfigHandler repositoryConfigHandler;
@@ -45,12 +47,14 @@ public class ConfigHandler {
     ConfigHandler(
             final ApplicationVersion appVersion,
             final ApplicationDirectories appDirs,
+            final NodeAccess nodeAccess,
             final SystemConfigHandler systemConfigHandler,
             final SecurityConfigHandler securityConfigHandler,
             final RepositoryConfigHandler repositoryConfigHandler,
             final Interpolator interpolator) {
         this.appVersion = appVersion;
         this.appDirs = appDirs;
+        this.nodeAccess = nodeAccess;
         this.systemConfigHandler = systemConfigHandler;
         this.securityConfigHandler = securityConfigHandler;
         this.repositoryConfigHandler = repositoryConfigHandler;
@@ -80,11 +84,8 @@ public class ConfigHandler {
         }
 
         final String effectiveYaml = interpolator.interpolate(yamlText);
-        final MessageDigest md = MessageDigest.getInstance("SHA-1");
-        final byte[] currentHash = md.digest(effectiveYaml.getBytes(StandardCharsets.UTF_8));
-
+        final byte[] currentHash = getHashFor(effectiveYaml);
         final Yaml yaml = makeYaml(null);
-
         final Config model = yaml.load(effectiveYaml);
         if (model == null) {
             log.warn("empty configuration found");
@@ -111,6 +112,14 @@ public class ConfigHandler {
 
     private Yaml makeYaml(final Options opts) {
         return Utils.makeYaml(opts == null || opts.showEmptyProperties, opts == null || opts.showEmptyCollections);
+    }
+
+    private byte[] getHashFor(final String yamlText) throws NoSuchAlgorithmException {
+        final MessageDigest md = MessageDigest.getInstance("SHA-1");
+        final String nodeId = nodeAccess.getId();
+        md.update(nodeId.getBytes(StandardCharsets.UTF_8));
+        md.update(yamlText.getBytes(StandardCharsets.UTF_8));
+        return md.digest();
     }
 
     private boolean needToUpdate(final Config.Metadata metadata, final byte[] currentHash) throws IOException {
