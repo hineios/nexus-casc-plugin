@@ -1,23 +1,48 @@
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.asharapov.nexus/nexus-casc-plugin/badge.png)](https://search.maven.org/artifact/io.github.asharapov.nexus/nexus-casc-plugin/)
+
 # Nexus Configuration as Code
 
-Nexus CasC is a configuration as code plugin for sonatype nexus 3.
+Nexus CasC is a configuration as code plugin for Sonatype Nexus Repository Manager 3.
 
 This plugin allows to specify a YAML file to configure a Nexus instance on startup.
 
 ## Why Fork?
 
-Forked from: https://github.com/sventschui/nexus-casc-plugin
+Forked from: https://github.com/AdaptiveConsulting/nexus-casc-plugin
 
-The original provider did not respond to PRs
+Many new features were added that changed the format of the config file and thus broke backward compatibility 
+with previous versions of the plugin.
 
 ### Changes from the fork
 
-* The groupId has changed to avoid clashing with the original project
-* The build process now produces a `.kar` archive and can be directly deployed in
-  upstream Nexus via the `deploy` directory (providing the API versions match)
-* Unit tests and integration tests have been enabled
-* Basic CI has been added
-* Releases are currently pushed to our private repository, this may change in the future
+* Added support for all Sonatype Repository Manager (OSS edition) settings except scripts, including:
+  - improved and extended configuration of HTTP/HTTPS connections;
+  - added support for configuring SMTP parameters;
+  - added support for tasks scheduling configuration;
+  - added support for Nexus Repository Manager (Pro edition) license installation;
+  - added support for configuring Nexus IQ server integration;
+  - added support for configuring LDAP server integration;
+  - added support for trusted SSL certificates configuration;
+  - added support for content selectors configuration;
+  - added support for routing rules configuration.
+* The plugin now has a REST API (available for authenticated users with administrators privileges) that can be used for: 
+  - exporting the current server configuration to a YAML file;
+  - importing the configuration from a YAML file to the server.
+* Added support for a new type ('CASC - Export configuration') of scheduling tasks that can be used to export 
+the current Nexus configuration to a YAML file.
+* Improvements have been made to the process of configuring server parameters (either automatically when it starts, or using the REST API plugin).
+  Now you can manage the conditions under which the settings contained in the proposed YAML configuration file will actually be applied on the server:
+   - on demand (either automatically when starting the server, or when calling the corresponding method using the plugin REST API),
+    regardless of whether the plugin has previously made any changes to the settings of this Nexus server instance;
+   - only if one of two conditions is met:
+      - either the plugin has not previously made any changes to the settings of this instance of the Nexus server;
+      - or the content of the previously loaded configuration file differs from the content of the configuration file that is offered to be loaded now;
+   - only if the plugin has not previously made any changes to the settings of this instance of the Nexus server.
+This was implemented with an additional `metadata.executionPolicy` parameter in the YAML configuration file,
+which can take one of three values: `ALWAYS`, `IF_CHANGED`, `ONLY_ONCE`.
+* Integration tests now cover most of the functionality provided by the plugin.
+* The groupId has changed to avoid clashing with the original project.
+
 
 ## Usage
 
@@ -28,15 +53,58 @@ the API remains consistent.
 Deploy the .kar archive using the upstream `sonatype/nexus3` image in the `/opt/sonatype/nexus/deploy/` directory.
 The plugin will be automatically installed on startup.
 
-It expects a YAML configuration file to be mounted to `/opt/nexus.yml` (This path can be overridden using the `NEXUS_CASC_CONFIG` env var).
-
-The format of the YAML file is documented below.
-
+It expects a YAML configuration file to be mounted to `/opt/nexus.yml` (This path can be overridden using the either `NEXUS_CASC_IMPORT_PATH` or `NEXUS_CASC_CONFIG` env var).  
 Start Nexus as usual.
+
+The simplest and recommended procedure for preparing a YAML configuration file is as follows:
+1. Start a separate instance of the Nexus server with the CasC plugin installed.
+2. Using standard Nexus administration tools, make all the necessary changes to its settings.
+3. Export the current Nexus server settings to a file using the plugin REST API or 'CASC - Export configuration' task.
+4. Use the resulting YAML file as a template to set up your Nexus target servers.  
+**Known issues**:  
+When exporting the current server configuration, the following parameters cannot be restored:
+   - sources for downloading trusted certificates (paths/urls to PEM files, list of external hosts);
+   - path (or url) to the Nexus Repository Manager (Pro edition) license file.  
+The values of the above parameters should be added to the exported configuration file manually (see the corresponding fragment of the configuration file below).
+```yaml
+metadata:
+  executionPolicy: IF_CHANGED # this configuration will only be processed if it was not imported earlier (or if any changes have been made to it since then) 
+systemConfig:
+# ...
+  license:
+    installFrom: /opt/sonatype-repository-manager-trial.lic  # the Nexus Repository Pro license will be installed from the specified file
+# ...
+securityConfig:
+# ...
+  trustedCerts:
+    fromPEMFiles:
+      - file:///opt/certs/www-postgresql-org-chain.pem  # the chain of the trusted certificates will be loaded from the specified URL
+      - /opt/certs/www-redhat-com-chain.pem             # the chain of the trusted certificates will be loaded from the specified local file
+    fromServers:
+      - host: www.oracle.com                            # the chain of the trusted certificates will be obtained from the given server (port 443 used as default)
+        port: 443
+      - host: www.google.com
+# ...
+```
+
+
+## CasC REST API
+
+Examples of commands for exporting the current configuration (with the option to hide non-modifiable or system parameters - by default, or not):
+```shell script
+$ curl -u admin:admin123 -X GET "http://localhost:8081/service/rest/casc/config" > nexus-config.yml
+$ curl -u admin:admin123 -X GET "http://localhost:8081/service/rest/casc/config?showReadOnlyObjects=true" > nexus-config.yml
+```
+
+Example of a command to import a Nexus server configuration from a file:
+```shell script
+$ curl -u admin:admin123 -X POST "http://localhost:8081/service/rest/casc/config" -H "Content-Type: text/vnd.yaml" --data-binary @nexus-config.yml
+```
+
 
 ## Configuration file
 
-You can find an example configuration file [here](https://github.com/AdaptiveConsulting/nexus-casc-plugin/blob/master/default-nexus.yml).
+You can find an example configuration file [here](./examples/nexus-demo.yml).
 
 ### Interpolation
 
@@ -44,284 +112,29 @@ Use `${ENV_VAR}` for env var interpolation. Use `${ENV_VAR:default}` or `${ENV_V
 
 Use `${file:/path/to/a/file}` to include the contents of a file.
 
-The configuration file supports following options:
 
-### Supported options
+## How to build
 
-#### Core
+#### Requirements
+1. JDK 8+
+2. Maven 3.6+
+3. Docker (for integration testing and to run the examples)
+4. docker-compose (to run the examples)
 
-```yaml
-core:
-  baseUrl: "" # Nexus base URL
-  httpProxy: "" # HTTP proxy (Note: Basic Auth and NTLM are not yet supported, file an issue if you require this)
-  httpsProxy: ""  # HTTP proxy
-  nonProxyHosts: "" # Comma separated list of hosts not to be queried through a proxy
+#### Building the plugin
+
+To build a plugin, use the command:
+```shell script
+$ mvn -U clean package
 ```
 
-#### Security
-
-```yaml
-security:
-  anonymousAccess: false # Enable/Disable anonymous access
-  pruneUsers: true # True to delete users not part of this configuration file
-  realms: # Authentication realms, tested for rutauth-realm only
-    - name: rutauth-realm
-      enabled: true
-  users:
-    - username: johndoe
-      firstName: John
-      lastName: Doe
-      password: ${file:/run/secrets/password_johndoe}
-      updateExistingPassword: false # True to update passwords of existing users, otherwise password is only used when creating a user
-      email: johndoe@example.org
-      roles:
-        - source: ""
-          role: nx-admin
+To run all integration tests and generate a report on their execution, use the command:
+```shell script
+$ mvn -U clean verify allure:aggregate
 ```
 
-
-#### Repository
-
-```yaml
-repository:
-  pruneBlobStores: true # True to delete blob stores not present in this configuration file
-  blobStores: # List of blob stores to create
-    - name: maven
-      type: File
-      attributes:
-        file:
-          path: maven
-        blobStoreQuotaConfig:
-          quotaLimitBytes: 10240000000
-          quotaType: spaceUsedQuota
-    - name: npm
-      type: File
-      attributes:
-        file:
-          path: npm
-        blobStoreQuotaConfig:
-          quotaLimitBytes: 10240000000
-          quotaType: spaceUsedQuota
-    - name: docker
-      type: File
-      attributes:
-        file:
-          path: docker
-        blobStoreQuotaConfig:
-          quotaLimitBytes: 10240000000
-          quotaType: spaceUsedQuota
-    - name: main
-      type: S3
-      attributes:
-        s3:
-          bucket: 'some-bucket' # (mandatory) AWS bucket
-          prefix: '/nexus/'    # (optional) prefix for structure in bucket
-          # Nexus uses default S3 provider chain so options are:
-          # 1. Usual AWS_PROFILE, AWS_ACCESS_KEY etc. environment variables
-          # 2. IAM Instance Profile with appropriate IAM role and policy (see Nexus docs)
-          # 3. Explicit credentials (below)
-          accessKeyId: 'some_key' # (optional) AWS access key Id
-          secretAccessKey: 'some_secret_key'  # (optional) AWS secret access key
-          sessionToken: 'some_session_token'  # (optional) AWS session token
-          assumeRole: 'power-users' # (optional) custom IAM role to assume
-          region: 'eu-west-1'   # (optional) AWS region
-          endpoint: 'https://s3.custom-endpoint.somewhere/'
-          expiration: '3'  # (optional) days, default=3
-          signertype: none # (optional) 'one of none(default)|S3SignerType|AWSS3V4SignerType'
-          forcepathstyle: false # (optional) 'false(default)|true'
-          encryption_type: DEFAULT # (optional) 'one of DEFAULT(default)|s3ManagedEncryption|kmsManagedEncryption'
-          encryption_key: 'aws/s3' # (required kmsManagedEncryption only) AWS KMS Key Id or KMS Key Alias
-  pruneCleanupPolicies: true # True to delete cleanup policies not present in this configuration file
-  cleanupPolicies:
-    - name: cleanup-maven-proxy
-      format: maven2
-      notes: ''
-      criteria:
-        lastDownloadBefore: 864000
-        lastBlobUpdated: 864000
-    - name: cleanup-npm-proxy
-      format: npm
-      notes: ''
-      criteria:
-        lastDownloadBefore: 864000
-    - name: cleanup-docker-proxy
-      format: docker
-      notes: ''
-      criteria:
-        lastDownloaded: 864000
-  pruneRepositories: true # True to delete repositories not present in this configuration file
-  repositories:
-    - name: npm-proxy
-      online: true
-      recipeName: npm-proxy
-      attributes:
-        proxy:
-          remoteUrl: https://registry.npmjs.org
-          contentMaxAge: -1.0
-          metadataMaxAge: 1440.0
-        httpclient:
-          blocked: false
-          autoBlock: true
-          connection:
-            useTrustStore: false
-        storage:
-          blobStoreName: npm
-          strictContentTypeValidation: true
-        routingRules:
-          routingRuleId: null
-        negativeCache:
-          enabled: true
-          timeToLive: 1440.0
-        cleanup:
-          policyName: cleanup-npm-proxy
-    - name: npm-hosted
-      online: true
-      recipeName: npm-hosted
-      attributes:
-        storage:
-          blobStoreName: npm
-          strictContentTypeValidation: true
-          writePolicy: ALLOW_ONCE
-        cleanup:
-          policyName: None
-    - name: npm
-      online: true
-      recipeName: npm-group
-      attributes:
-        storage:
-          blobStoreName: npm
-          strictContentTypeValidation: true
-        group:
-          memberNames:
-           - "npm-proxy"
-           - "npm-hosted"
-    - name: maven-snapshots
-      online: true
-      recipeName: maven2-hosted
-      attributes:
-        maven:
-          versionPolicy: SNAPSHOT
-          layoutPolicy: STRICT
-        storage:
-          writePolicy: ALLOW
-          strictContentTypeValidation: false
-          blobStoreName: maven
-    - name: maven-central
-      online: true
-      recipeName: maven2-proxy
-      attributes:
-        proxy:
-          contentMaxAge: -1
-          remoteUrl: https://repo1.maven.org/maven2/
-          metadataMaxAge: 1440
-        negativeCache:
-          timeToLive: 1440
-          enabled: true
-        storage:
-          strictContentTypeValidation: false
-          blobStoreName: maven
-        httpClient:
-          connection:
-            blocked: false
-            autoBlock: true
-        maven:
-          versionPolicy: RELEASE
-          layoutPolicy: PERMISSIVE
-        cleanupPolicy:
-          name: cleanup-maven-proxy
-        httpclient:
-        maven-indexer:
-    - name: maven-tudelft
-      online: true
-      recipeName: maven2-proxy
-      attributes:
-        proxy:
-          contentMaxAge: -1
-          remoteUrl: https://simulation.tudelft.nl/maven/
-          metadataMaxAge: 1440
-        negativeCache:
-          timeToLive: 1440
-          enabled: true
-        storage:
-          strictContentTypeValidation: false
-          blobStoreName: maven
-        httpClient:
-          connection:
-            blocked: false
-            autoBlock: true
-        maven:
-          versionPolicy: RELEASE
-          layoutPolicy: PERMISSIVE
-        cleanupPolicy:
-          name: cleanup-maven-proxy
-        httpclient:
-        maven-indexer:
-    - name: maven-public
-      online: true
-      recipeName: maven2-group
-      attributes:
-        maven:
-          versionPolicy: MIXED
-        group:
-          memberNames:
-           - "maven-central"
-           - "maven-snapshots"
-           - "maven-tudelft"
-        storage:
-          blobStoreName: maven
-    - name: docker-hosted
-      online: true
-      recipeName: docker-hosted
-      attributes:
-        docker:
-          forceBasicAuth: true
-          v1Enabled: false
-        storage:
-          blobStoreName: docker
-          strictContentTypeValidation: true
-          writePolicy: ALLOW_ONCE
-        cleanup:
-          policyName: None
-    - name: docker-proxy
-      online: true
-      recipeName: docker-proxy
-      attributes:
-        docker:
-          forceBasicAuth: true
-          v1Enabled: false
-        proxy:
-          remoteUrl: https://registry-1.docker.io
-          contentMaxAge: -1.0
-          metadataMaxAge: 1440.0
-        dockerProxy:
-          indexType: REGISTRY
-        httpclient:
-          blocked: false
-          autoBlock: true
-          connection:
-            useTrustStore: false
-        storage:
-          blobStoreName: docker
-          strictContentTypeValidation: true
-        routingRules:
-          routingRuleId: null
-        negativeCache:
-          enabled: true
-          timeToLive: 1440.0
-        cleanup:
-          policyName: cleanup-docker-proxy
-    - name: docker
-      online: true
-      recipeName: docker-group
-      attributes:
-        docker:
-          forceBasicAuth: true
-          v1Enabled: false
-        storage:
-          blobStoreName: docker
-          strictContentTypeValidation: true
-        group:
-          memberNames:
-            - "docker-hosted"
-            - "docker-proxy"
+To show the generated report, you can use the command below, but it is better to use the [allure](http://allure.qatools.ru/) plugin for your preferred CI/CD service.
+```shell script
+./.allure/allure-2.13.5/bin/allure open -h localhost -p 35000 target/site/allure-maven-plugin
 ```
+

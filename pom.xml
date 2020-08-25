@@ -5,28 +5,120 @@
     <parent>
         <groupId>org.sonatype.nexus.plugins</groupId>
         <artifactId>nexus-plugins</artifactId>
-        <version>3.25.1-02</version>
+        <version>3.24.0-02</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.weareadaptive.nexus</groupId>
+    <groupId>io.github.asharapov.nexus</groupId>
     <artifactId>nexus-casc-plugin</artifactId>
-    <version>3.25.1-02</version>
+    <version>3.24.0.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
+    <name>nexus-casc-plugin</name>
+    <description>
+        Configuration as code plugin for Sonatype Nexus Repository Manager
+    </description>
+    <url>https://github.com/asharapov/nexus-casc-plugin</url>
+    <inceptionYear>2019</inceptionYear>
+    <developers>
+        <developer>
+            <name>Sven Tschui</name>
+            <url>https://github.com/sventschui</url>
+        </developer>
+        <developer>
+            <name>Brett Delle Grazie</name>
+            <url>https://github.com/bdellegrazie</url>
+        </developer>
+        <developer>
+            <name>Anton Sharapov</name>
+            <url>https://github.com/asharapov</url>
+        </developer>
+    </developers>
+    <contributors>
+    </contributors>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:https://github.com/asharapov/nexus-casc-plugin.git</connection>
+        <developerConnection>scm:git:https://github.com/asharapov/nexus-casc-plugin.git</developerConnection>
+        <url>https://github.com/asharapov/nexus-casc-plugin</url>
+        <tag>HEAD</tag>
+    </scm>
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/asharapov/nexus-casc-plugin/issues</url>
+    </issueManagement>
+
     <properties>
-        <nexus.docker.version>3.25.1</nexus.docker.version>
-
-        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-        <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
-        <docker-compose-maven-plugin.version>4.0.0</docker-compose-maven-plugin.version>
-
+        <nexus.docker.version>3.24.0</nexus.docker.version>
+        <nexus.pkg.version>3.24.0-02</nexus.pkg.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+        <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
         <snakeyaml.version>1.26</snakeyaml.version>
-
-        <junit-jupiter.version>5.6.2</junit-jupiter.version>
+        <junit.version>5.6.2</junit.version>
+        <testcontainers.version>1.14.3</testcontainers.version>
+        <fasterxml.version>2.11.1</fasterxml.version>
+        <retrofit.version>2.9.0</retrofit.version>
+        <allure.version>2.13.5</allure.version>
+        <aspectj.version>1.9.4</aspectj.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${fasterxml.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+        <dependency>
+            <groupId>com.sonatype.nexus.plugins</groupId>
+            <artifactId>nexus-ldap-plugin</artifactId>
+            <version>${nexus.pkg.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sonatype.nexus.plugins</groupId>
+            <artifactId>nexus-healthcheck-base</artifactId>
+            <version>${nexus.pkg.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sonatype.nexus</groupId>
+            <artifactId>nexus-licensing-extension</artifactId>
+            <version>${nexus.pkg.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sonatype.nexus.plugins</groupId>
+            <artifactId>nexus-blobstore-s3</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.sonatype.nexus</groupId>
             <artifactId>nexus-blobstore-api</artifactId>
@@ -79,23 +171,51 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit5</artifactId>
+            <version>${allure.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>4.2.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>7.1.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>retrofit</artifactId>
+            <version>${retrofit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>converter-jackson</artifactId>
+            <version>${retrofit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -111,13 +231,6 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>${project.basedir}/src/docker</directory>
-                <filtering>true</filtering>
-                <targetPath>${project.basedir}</targetPath>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
@@ -147,37 +260,73 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>${build-helper-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>reserve-port</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>reserve-network-port</goal>
-                        </goals>
-                        <configuration>
-                            <minPortNumber>8081</minPortNumber>
-                            <portNames>
-                                <portName>nexus.ui.port</portName>
-                            </portNames>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <testFailureIgnore>true</testFailureIgnore>
+                    <forkCount>1</forkCount>
+                    <reuseForks>true</reuseForks>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                    <properties>
+                        <configurationParameters>
+                            junit.jupiter.extensions.autodetection.enabled=true
+                            junit.jupiter.execution.parallel.enabled=true
+                            junit.jupiter.execution.parallel.mode.default=concurrent
+                            junit.jupiter.execution.parallel.mode.classes.default=concurrent
+                            junit.jupiter.execution.parallel.config.strategy=fixed
+                            junit.jupiter.execution.parallel.config.fixed.parallelism=2
+                        </configurationParameters>
+                    </properties>
+                    <systemPropertyVariables>
+                        <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+                    </systemPropertyVariables>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjweaver</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
-                    <environmentVariables>
-                        <NEXUS_URL>http://localhost:${nexus.ui.port}</NEXUS_URL>
-                    </environmentVariables>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <testFailureIgnore>true</testFailureIgnore>
+                    <forkCount>0</forkCount>
+                    <reuseForks>true</reuseForks>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                    <properties>
+                        <configurationParameters>
+                            junit.jupiter.extensions.autodetection.enabled=true
+                            junit.jupiter.testinstance.lifecycle.default=per_class
+                            junit.jupiter.execution.parallel.enabled=true
+                            junit.jupiter.execution.parallel.mode.default=same_thread
+                            junit.jupiter.execution.parallel.mode.classes.default=concurrent
+                            junit.jupiter.execution.parallel.config.strategy=fixed
+                            junit.jupiter.execution.parallel.config.fixed.parallelism=2
+                        </configurationParameters>
+                    </properties>
+                    <systemPropertyVariables>
+                        <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+                        <nexus.pkg.version>${nexus.pkg.version}</nexus.pkg.version>
+                        <nexus.docker.version>${nexus.docker.version}</nexus.docker.version>
+                    </systemPropertyVariables>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjweaver</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <goals>
@@ -188,50 +337,13 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.dkanejs.maven.plugins</groupId>
-                <artifactId>docker-compose-maven-plugin</artifactId>
-                <version>${docker-compose-maven-plugin.version}</version>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>2.10.0</version>
                 <configuration>
-                    <composeFile>${project.basedir}/docker-compose.yml</composeFile>
-                    <envFile>${project.basedir}/.env</envFile>
-                    <envVars>
-                        <NEXUS_UI_PORT>${nexus.ui.port}</NEXUS_UI_PORT>
-                    </envVars>
-                    <ignorePullFailures>true</ignorePullFailures>
-                    <skip>${skipITs}</skip>
+                    <reportVersion>${allure.version}</reportVersion>
+                    <allureDownloadUrl>https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/${allure.version}/allure-commandline-${allure.version}.zip</allureDownloadUrl>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>pull</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>pull</goal>
-                        </goals>
-                        <configuration>
-                            <ignorePullFailures>true</ignorePullFailures>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>up</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>up</goal>
-                        </goals>
-                        <configuration>
-                            <detachedMode>true</detachedMode>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>down</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>down</goal>
-                        </goals>
-                        <configuration>
-                            <removeVolumes>true</removeVolumes>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
@@ -247,8 +359,14 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>localrepo</id>
+            <url>file://${project.basedir}/mvnrepo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
     </repositories>
-
 
     <pluginRepositories>
         <pluginRepository>
@@ -262,4 +380,94 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
+
+    <profiles>
+        <profile>
+            <id>release.oss</id>
+            <distributionManagement>
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+            </distributionManagement>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.2.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <configuration>
+                            <failOnError>false</failOnError>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                                <configuration>
+                                    <use>false</use>
+                                    <source>1.8</source>
+                                    <quiet>true</quiet>
+                                    <encoding>UTF-8</encoding>
+                                    <charset>UTF-8</charset>
+                                    <docencoding>UTF-8</docencoding>
+                                    <additionalJOption>-Xdoclint:none</additionalJOption>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.8</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

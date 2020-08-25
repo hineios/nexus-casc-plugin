@@ -1,0 +1,136 @@
+version: '3.7'
+
+services:
+  nexus:
+    image: sonatype/nexus3:${NEXUS_DOCKER_VERSION}
+    container_name: nexus
+    environment:
+      BASE_URL: 'http://localhost:8081'
+      NEXUS_SECURITY_RANDOMPASSWORD: 'false'
+      NEXUS_CASC_IMPORT_PATH: '/opt/nexus-demo.yml'
+      #INSTALL4J_ADD_VM_PARAMS: '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005'  # for remote debugging of the plugin
+    volumes:
+      - ../target/nexus-casc-plugin-${PLUGIN_VERSION}-bundle.kar:/opt/sonatype/nexus/deploy/nexus-casc-plugin-${PLUGIN_VERSION}-bundle.kar:ro
+      - ./data:/nexus-data/casc:rw                # useful only for testing configuration export tasks
+      - ./nexus-demo.yml:/opt/nexus-demo.yml:ro
+      - ./certs:/opt/certs:ro
+      - ./sonatype-repository-manager-trial.lic:/opt/sonatype-repository-manager-trial.lic:ro  # use the current version of the license to test its installation
+      - nexus-data:/nexus-data
+    secrets:
+      - nexus_admin
+      - nexus_master
+      - nexus_user1
+      - smtp_passwd
+      - openldap_admin
+      - minio_accesskey
+      - minio_secretkey
+      - iq_admin
+    ports:
+      - 8081:8081
+      - 8082:8082
+      - 8083:8083
+      - 5005:5005
+    networks:
+      - nexus
+    depends_on:
+      - openldap
+      - minio
+    restart: "no"
+
+  openldap:
+    image: osixia/openldap:1.4.0
+    container_name: openldap
+    environment:
+      - LDAP_ADMIN_PASSWORD_FILE=/run/secrets/openldap_admin
+      - LDAP_BASE_DN=dc=example,dc=org
+      - LDAP_DOMAIN=example.org
+      - LDAP_SEED_INTERNAL_LDIF_PATH=/initdb.d
+    volumes:
+      - ./initdata.ldif:/initdb.d/data.ldif:ro
+      - openldap-conf:/etc/ldap/slapd.d
+      - openldap-data:/var/lib/ldap
+    secrets:
+      - openldap_admin
+    ports:
+      - 1389:389
+      - 1636:636
+    networks:
+      - nexus
+    restart: unless-stopped
+
+  minio:
+    image: bitnami/minio:latest
+    container_name: minio
+    environment:
+      - MINIO_ACCESS_KEY_FILE=/run/secrets/minio_accesskey
+      - MINIO_SECRET_KEY_FILE=/run/secrets/minio_secretkey
+      - MINIO_DEFAULT_BUCKETS=store1,store2
+    volumes:
+      - minio-data:/data
+      - minio-certs:/certs
+    secrets:
+      - minio_accesskey
+      - minio_secretkey
+    ports:
+      - 9000:9000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      nexus:
+        aliases:
+          - store1.minio
+          - store2.minio
+    restart: unless-stopped
+
+#  iq:
+#    image: sonatype/nexus-iq-server:latest
+#    container_name: iq
+#    environment: {}
+#    volumes:
+#      - iq-data:/sonatype-work
+#    ports:
+#      - 8070:8070
+#      - 8071:8071
+#    networks:
+#      - nexus
+#    restart: unless-stopped
+
+
+secrets:
+  nexus_admin:
+    file: ./.secrets/nexus_admin
+  nexus_master:
+    file: ./.secrets/nexus_master
+  nexus_user1:
+    file: ./.secrets/nexus_user1
+  smtp_passwd:
+    file: ./.secrets/smtp_passwd
+  openldap_admin:
+    file: ./.secrets/openldap_admin
+  minio_accesskey:
+    file: ./.secrets/minio_accesskey
+  minio_secretkey:
+    file: ./.secrets/minio_secretkey
+  iq_admin:
+    file: ./.secrets/iq_admin
+
+volumes:
+  nexus-data:
+    driver: local
+  iq-data:
+    driver: local
+  minio-data:
+    driver: local
+  minio-certs:
+    driver: local
+  openldap-conf:
+    driver: local
+  openldap-data:
+    driver: local
+
+networks:
+  nexus:
+    driver: bridge

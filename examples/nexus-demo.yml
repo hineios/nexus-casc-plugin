@@ -1,0 +1,481 @@
+metadata:
+  version: '3.24'
+  executionPolicy: ALWAYS
+systemConfig:
+  baseUrl: ${BASE_URL:""}
+  connTimeout: 20
+  connRetries: 2
+  userAgentFragment: nexus3
+  httpProxy:
+    host: localhost
+    port: 3001
+    auth:
+      user: proxy-user
+      password: proxy-pwd
+    enabled: true
+  nonProxyHosts:
+    - 192.168.1.1
+    - localhost
+    - openldap
+    - minio
+    - iq
+    - registry-1.docker.io
+    - repo1.maven.org
+    - registry.npmjs.org
+  smtp:
+    enabled: false
+    host: smtp.mail.ru
+    port: 465
+    userName: testusr2020@mail.ru
+    password: "${file:/run/secrets/smtp_passwd}"
+    fromAddress: testusr2020@mail.ru
+    subjectPrefix: NEXUS
+    sslOnConnectEnabled: true
+    sslCheckServerIdentityEnabled: false
+  iq:
+    enabled: false
+    url: http://iq:8070
+    username: admin
+    password: "${file:/run/secrets/iq_admin}"
+    authType: USER
+    attrs: {}
+    showLink: true
+    useTrustStore: false
+    timeout: 10
+  tasks:
+    - type: casc.export
+      name: casc.export
+      enabled: true
+      visible: true
+      exposed: true
+      recoverable: false
+      alertEmail: testusr2020+test@mail.ru
+      alertCondition: FAILURE
+      attrs:
+        casc.export.empty-properties: 'true'
+        casc.export.empty-collections: 'true'
+        casc.export.hidden-tasks: 'false'
+        casc.export.readonly-objects: 'false'
+        casc.export.path: /nexus-data/casc/export/nexus.yml
+      schedule:
+        type: manual
+  pruneOtherExposedTasks: false
+  capabilities:
+    - type: rapture.settings
+      enabled: true
+      notes: Update default session timeouts
+      attrs:
+        title: Nexus Repository Manager
+        longRequestTimeout: '180'
+        requestTimeout: '60'
+        statusIntervalAnonymous: '60'
+        statusIntervalAuthenticated: '5'
+        searchRequestTimeout: '0'
+        sessionTimeout: '300'
+        debugAllowed: 'true'
+    - type: OutreachManagementCapability
+      notes: Disable the survey on the main page
+      enabled: false
+#  license:
+#    installFrom: /opt/sonatype-repository-manager-trial.lic
+securityConfig:
+  anonymousAccess: false
+  trustedCerts:
+    fromPEMFiles:
+      - /opt/certs/
+#      - /opt/certs/www-redhat-com-chain.pem
+#      - file:///opt/certs/www-postgresql-org-chain.pem
+    fromServers:
+      - host: www.oracle.com
+        port: 443
+      - host: www.google.com
+  ldapServers:
+    - name: openldap
+      order: 0
+      connection:
+        protocol: ldap
+        host: openldap
+        port: 389
+        searchBase: dc=example,dc=org
+        authScheme: simple
+        user: cn=admin,dc=example,dc=org
+        password: "${file:/run/secrets/openldap_admin}"
+        useTrustStore: false
+        saslRealm: ''
+        connectionRetryDelay: 300
+        connectionTimeout: 30
+        maxIncidentsCount: 3
+      mapping:
+        userBaseDn: ou=users
+        userSubtree: true
+        userObjectClass: person
+        userIdAttr: cn
+        userNameAttr: displayName
+        userEmailAttr: mail
+        userPasswordAttr: userPassword
+        ldapFilter: ''
+        groupBaseDn: ou=groups
+        groupSubtree: true
+        groupObjectClass: posixGroup
+        groupIdAttr: cn
+        groupMemberAttr: member
+        groupMemberFormat: cn=${username},ou=users,dc=example,dc=org
+        ldapGroupsAsRoles: true
+        userMemberOfAttr: null
+  realms:
+    - name: org.sonatype.repository.conan.internal.security.token.ConanTokenRealm
+      enabled: false
+    - name: DefaultRole
+      enabled: false
+    - name: DockerToken
+      enabled: false
+    - name: LdapRealm
+      enabled: true
+    - name: NexusAuthenticatingRealm
+      enabled: true
+    - name: NexusAuthorizingRealm
+      enabled: true
+    - name: NpmToken
+      enabled: false
+    - name: NuGetApiKey
+      enabled: false
+    - name: rutauth-realm
+      enabled: false
+  privileges:
+    - id: system-repository-admin-docker-docker-proxy-update
+      authSource: default
+      name: system-repository-admin-docker-docker-proxy-update
+      description: Permit update to docker-proxy repository configuration
+      type: repository-admin
+      attrs:
+        format: docker
+        repository: docker-proxy
+        actions: read,update
+  roles:
+    - id: nx-developers
+      authSource: default
+      name: nx-developers
+      description: This role has all the privileges as well as the 'nx-anonymous' role adding the specified privileges to them
+      privileges:
+        - nx-component-upload
+        - nx-repository-view-*-*-edit
+        - nx-repository-view-*-*-add
+      roles:
+        - nx-anonymous
+    - id: staff
+      authSource: default
+      name: nx-staff
+      description: Map external developers from LDAP group 'staff' to Nexus role 'nx-staff' that has same privileges as 'nx-developers' role
+      privileges: []
+      roles:
+        - nx-developers
+      readOnly: false
+  rolesToDelete: []
+  users:
+    - id: "anonymous"   # keep that account without any changes
+      authSource: default
+    - id: admin
+      authSource: default
+      email: admin@example.com
+      active: true
+      roles:
+        - id: nx-admin
+          authSource: default
+      password: "${file:/run/secrets/nexus_admin}"
+      updateExistingPassword: true
+    - id: master
+      authSource: default
+      name: Administrator Nexus
+      firstName: Administrator
+      lastName: Nexus
+      email: master@example.com
+      active: true
+      roles:
+        - id: nx-admin
+          authSource: default
+      password: "${file:/run/secrets/nexus_master}"
+      updateExistingPassword: false
+    - id: user1
+      authSource: default
+      name: Demo User
+      firstName: Demo
+      lastName: User
+      email: user1@example.com
+      active: true
+      roles:
+        - id: nx-developers
+          authSource: default
+      password: "${file:/run/secrets/nexus_user1}"
+    - id: user2
+      authSource: default
+      name: Demo2 User
+      firstName: Demo2
+      lastName: User
+      email: user2@example.com
+      active: true
+      roles:
+        - nx-developers
+      password: "${file:/run/secrets/nexus_user1}"
+  usersToDelete:
+    - id: user2
+      authSource: default
+  pruneOtherUsers: true
+repositoryConfig:
+  blobStores:
+    - name: docker
+      type: File
+      attrs:
+        file:
+          path: docker
+        blobStoreQuotaConfig:
+          quotaLimitBytes: 524288000
+          quotaType: spaceRemainingQuota
+    - name: docker-ext
+      type: File
+      attrs:
+        file:
+          path: docker-ext
+        blobStoreQuotaConfig:
+          quotaLimitBytes: 1073741824
+          quotaType: spaceRemainingQuota
+    - name: maven
+      type: File
+      attrs:
+        file:
+          path: maven
+        blobStoreQuotaConfig:
+          quotaLimitBytes: 104857600
+          quotaType: spaceRemainingQuota
+    - name: maven-ext
+      type: File
+      attrs:
+        file:
+          path: maven-ext
+        blobStoreQuotaConfig:
+          quotaLimitBytes: 1073741824
+          quotaType: spaceRemainingQuota
+    - name: npm
+      type: File
+      attrs:
+        file:
+          path: npm
+        blobStoreQuotaConfig:
+          quotaLimitBytes: 104857600
+          quotaType: spaceRemainingQuota
+    - name: npm-ext
+      type: File
+      attrs:
+        file:
+          path: npm-ext
+        blobStoreQuotaConfig:
+          quotaLimitBytes: 1073741824
+          quotaType: spaceRemainingQuota
+    - name: cloud
+      type: S3
+      attrs:
+        s3:
+          region: us-east-1
+          bucket: store1
+          prefix: nexus
+          expiration: '1'
+          accessKeyId: "${file:/run/secrets/minio_accesskey}"
+          secretAccessKey: "${file:/run/secrets/minio_secretkey}"
+          assumeRole: ''
+          sessionToken: ''
+          endpoint: http://minio:9000
+          signertype: S3SignerType
+          forcepathstyle: 'true'
+        blobStoreQuotaConfig: {}
+  blobStoresToDelete:
+    - default
+  cleanupPolicies:
+    - name: cleanup-maven-proxy
+      format: maven2
+      mode: delete
+      notes: ''
+      criteria:
+        lastDownloaded: "864000"
+        lastBlobUpdated: "2592000"
+        regex: "^.*test.*$"
+        isPrerelease: "true"
+  cleanupPoliciesToDelete: []
+  selectors:
+    - name: sel-1
+      type: csel
+      description: Content selector example
+      attrs:
+        expression: format=="maven2" and path=~"^/org/apache/.*" and coordinate.extension=="pom"
+  selectorsToDelete: []
+  routingRules:
+    - name: test-rule
+      description: simple test rule
+      mode: BLOCK
+      matchers:
+        - /demo-.*
+  routingRulesToDelete: []
+  repositories:
+    - name: docker-hosted
+      recipeName: docker-hosted
+      online: true
+      attrs:
+        docker:
+          httpPort: 8082
+          forceBasicAuth: true
+          v1Enabled: false
+        storage:
+          blobStoreName: docker
+          strictContentTypeValidation: true
+          writePolicy: ALLOW
+          latestPolicy: false
+    - name: docker-proxy
+      recipeName: docker-proxy
+      online: true
+      attrs:
+        docker:
+          forceBasicAuth: true
+          v1Enabled: false
+        proxy:
+          remoteUrl: https://registry-1.docker.io
+          contentMaxAge: 2880
+          metadataMaxAge: 2880
+        dockerProxy:
+          indexType: HUB
+          cacheForeignLayers: true
+          useTrustStoreForIndexAccess: false
+          foreignLayerUrlWhitelist:
+            - .*
+        httpclient:
+          blocked: false
+          autoBlock: true
+          connection:
+            useTrustStore: false
+        storage:
+          blobStoreName: docker-ext
+          strictContentTypeValidation: true
+        negativeCache:
+          enabled: true
+          timeToLive: 15
+      routingRule: test-rule
+    - name: docker
+      recipeName: docker-group
+      online: true
+      attrs:
+        docker:
+          httpPort: 8083
+          forceBasicAuth: true
+          v1Enabled: false
+        storage:
+          blobStoreName: docker-ext
+          strictContentTypeValidation: true
+        group:
+          memberNames:
+            - docker-hosted
+            - docker-proxy
+    - name: maven-snapshots
+      recipeName: maven2-hosted
+      online: true
+      attrs:
+        maven:
+          versionPolicy: SNAPSHOT
+          layoutPolicy: STRICT
+        storage:
+          blobStoreName: maven
+          strictContentTypeValidation: true
+          writePolicy: ALLOW
+    - name: maven-releases
+      recipeName: maven2-hosted
+      online: true
+      attrs:
+        maven:
+          versionPolicy: RELEASE
+          layoutPolicy: STRICT
+        storage:
+          blobStoreName: maven
+          strictContentTypeValidation: true
+          writePolicy: ALLOW_ONCE
+    - name: maven-central
+      recipeName: maven2-proxy
+      online: true
+      attrs:
+        maven:
+          versionPolicy: RELEASE
+          layoutPolicy: PERMISSIVE
+        proxy:
+          remoteUrl: https://repo1.maven.org/maven2/
+          contentMaxAge: -1
+          metadataMaxAge: 1440
+        httpclient:
+          blocked: false
+          autoBlock: true
+          connection:
+            useTrustStore: false
+        storage:
+          blobStoreName: maven-ext
+          strictContentTypeValidation: false
+        negativeCache:
+          enabled: true
+          timeToLive: 30
+        cleanup:
+          policyName:
+            - cleanup-maven-proxy
+      routingRule: test-rule
+    - name: maven
+      recipeName: maven2-group
+      online: true
+      attrs:
+        storage:
+          blobStoreName: maven-ext
+          strictContentTypeValidation: true
+        group:
+          memberNames:
+            - maven-central
+            - maven-snapshots
+            - maven-releases
+    - name: npm-hosted
+      recipeName: npm-hosted
+      online: true
+      attrs:
+        storage:
+          blobStoreName: npm
+          strictContentTypeValidation: true
+          writePolicy: ALLOW_ONCE
+    - name: npm-proxy
+      recipeName: npm-proxy
+      online: true
+      attrs:
+        proxy:
+          remoteUrl: https://registry.npmjs.org
+          contentMaxAge: 1440
+          metadataMaxAge: 1440
+        httpclient:
+          blocked: false
+          autoBlock: true
+          connection:
+            useTrustStore: false
+        storage:
+          blobStoreName: npm-ext
+          strictContentTypeValidation: true
+        negativeCache:
+          enabled: true
+          timeToLive: 60
+    - name: npm
+      recipeName: npm-group
+      online: true
+      attrs:
+        storage:
+          blobStoreName: npm-ext
+          strictContentTypeValidation: true
+        group:
+          memberNames:
+            - npm-proxy
+            - npm-hosted
+    - name: files
+      recipeName: raw-hosted
+      online: true
+      attrs:
+        storage:
+          blobStoreName: cloud
+          strictContentTypeValidation: false
+          writePolicy: ALLOW
+      routingRule: null
+  pruneOtherRepositories: true

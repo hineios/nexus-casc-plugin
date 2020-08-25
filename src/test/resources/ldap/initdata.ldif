@@ -1,0 +1,124 @@
+version: 1
+
+dn: ou=users,{{ LDAP_BASE_DN }}
+objectClass: organizationalUnit
+ou: users
+
+dn: ou=groups,{{ LDAP_BASE_DN }}
+objectClass: organizationalUnit
+objectClass: top
+ou: groups
+
+dn: cn=dgcameron,ou=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: dgcameron
+sn: Cameron
+displayName: Derrick Cameron
+givenName: Derrick
+mail: dgcameron@{{ LDAP_DOMAIN }}
+userPassword:: MTIz
+
+dn: cn=pcdavies,ou=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: pcdavies
+sn: Davies
+displayName: Patrick Davies
+givenName: Patrick
+mail: pcdavies@{{ LDAP_DOMAIN }}
+userPassword:: MTIz
+
+dn: cn=derekoneil,ou=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: derekoneil
+sn: O'Neill
+displayName: Derek O'Neill
+givenName: Derek
+mail: derekoneil@{{ LDAP_DOMAIN }}
+userPassword:: MTIz
+
+dn: cn=pmalan,ou=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: pmalan
+sn: Malan
+displayName: Pieter Malan
+givenName: Pieter
+mail: pmalan@{{ LDAP_DOMAIN }}
+userPassword:: MTIz
+
+dn: cn=fpereira,ou=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: fpereira
+sn: Pereira
+displayName: Flavio Pereira
+givenName: Flavio
+mail: fpereira@{{ LDAP_DOMAIN }}
+userPassword:: emlnOTQwOHphZw==
+
+dn: cn=jdaniels,ou=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: jdaniels
+sn: Daniels
+displayName: Jack Daniels
+givenName: Jack
+mail: jdaniels@{{ LDAP_DOMAIN }}
+userPassword:: MTIz
+
+dn: cn=staff,ou=groups,{{ LDAP_BASE_DN }}
+objectClass: extensibleObject
+objectClass: posixGroup
+objectClass: top
+cn: staff
+gidNumber: 100
+member: cn=dgcameron,ou=users,{{ LDAP_BASE_DN }}
+member: cn=pcdavies,ou=users,{{ LDAP_BASE_DN }}
+member: cn=derekoneil,ou=users,{{ LDAP_BASE_DN }}
+member: cn=pmalan,ou=users,{{ LDAP_BASE_DN }}
+member: cn=fpereira,ou=users,{{ LDAP_BASE_DN }}
+member: cn=daniels_j,ou=users,{{ LDAP_BASE_DN }}
+
+dn: cn=developers,ou=groups,{{ LDAP_BASE_DN }}
+objectClass: extensibleObject
+objectClass: posixGroup
+objectClass: top
+cn: developers
+gidNumber: 101
+member: cn=dgcameron,ou=users,{{ LDAP_BASE_DN }}
+member: cn=pcdavies,ou=users,{{ LDAP_BASE_DN }}
+member: cn=derekoneil,ou=users,{{ LDAP_BASE_DN }}
+member: cn=pmalan,ou=users,{{ LDAP_BASE_DN }}
+member: cn=fpereira,ou=users,{{ LDAP_BASE_DN }}
+
+dn: cn=subcontractors,ou=groups,{{ LDAP_BASE_DN }}
+objectClass: extensibleObject
+objectClass: posixGroup
+objectClass: top
+cn: subcontractors
+gidNumber: 102
+member: cn=jdaniels,ou=users,{{ LDAP_BASE_DN }}
+
+dn: cn=qa,ou=groups,{{ LDAP_BASE_DN }}
+objectClass: extensibleObject
+objectClass: posixGroup
+objectClass: top
+cn: qa
+gidNumber: 103
+
+

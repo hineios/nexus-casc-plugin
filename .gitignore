@@ -1,6 +1,11 @@
 /.idea/
 /.jfrog/
-*.iml
+/test-email.properties
+/examples/data
+/.allure
 target/
-/.env
-/.direnv/
+*.iml
+.classpath
+.project
+.settings
+.DS_Store

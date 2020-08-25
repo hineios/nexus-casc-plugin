@@ -1,0 +1,17 @@
+# This is the template file 'test-email.properties', which is used in integration tests for email verification purposes.
+# Make copy of this file with name 'test-email.properties' and specify correct parameter values.
+# After that the additional integration test 'email verification' will be automatically enabled.
+#
+smtp.host=smtp.mail.ru
+smtp.port=465
+
+smtp.fromAddress=testusr2020@mail.ru
+
+# Specify your account name for the SMTP server.
+smtp.userName=testusr2020@mail.ru
+
+# Specify your password for the SMTP server. This is a mandatory field.
+smtp.password=
+
+#The email address to send the test message to. If omitted, the value from the 'smtp.fromAddress' parameter will be used.
+#smtp.email.verify=testusr2020@mail.ru
