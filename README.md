@@ -55,8 +55,8 @@ The plugin will be automatically installed on startup.
 
 Example of a custom Nexus docker image with the CasC plugin installed (you may need to update the Nexus and plugin versions):
 ```dockerfile
-FROM sonatype/nexus3:3.25.1
-ARG PLUGIN_VERSION=3.25.1.1
+FROM sonatype/nexus3:3.26.1
+ARG PLUGIN_VERSION=3.26.1.1
 USER root
 RUN set -eux; \
     curl -L -o /opt/sonatype/nexus/deploy/nexus-casc-plugin-${PLUGIN_VERSION}-bundle.kar \

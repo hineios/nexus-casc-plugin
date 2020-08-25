@@ -58,28 +58,28 @@ public interface NexusAPI {
     @GET("v1/iq")
     Call<IqConnectionVO> getIqConnection();
 
-    @GET("beta/security/anonymous")
+    @GET("v1/security/anonymous")
     Call<AnonymousAccessVO> getAnonymousStatus();
 
     @GET("v1/security/ldap")
     Call<List<LdapServerVO>> getLdapServers();
 
-    @GET("beta/security/realms/available")
+    @GET("v1/security/realms/available")
     Call<List<RealmVO>> getAvailableRealms();
 
-    @GET("beta/security/realms/active")
+    @GET("v1/security/realms/active")
     Call<List<String>> getActiveRealmIds();
 
-    @GET("beta/security/privileges")
+    @GET("v1/security/privileges")
     Call<List<PrivilegeVO>> getPrivileges();
 
-    @GET("beta/security/roles")
+    @GET("v1/security/roles")
     Call<List<RoleVO>> getRoles(@Query("source") String source);
 
-    @GET("beta/security/users")
+    @GET("v1/security/users")
     Call<List<UserVO>> getUsers(@Query("source") String source, @Query("userId") String userId);
 
-    @GET("beta/security/ssl/truststore")
+    @GET("v1/security/ssl/truststore")
     Call<List<CertificateVO>> getTrustedCertificates();
 
     @GET("v1/blobstores")
@@ -88,7 +88,7 @@ public interface NexusAPI {
     @GET("v1/blobstores/s3/{name}")
     Call<S3BlobStoreVO> getS3BlobStoreInfo(@Path("name") String blobStoreName);
 
-    @GET("beta/security/content-selectors")
+    @GET("v1/security/content-selectors")
     Call<List<ContentSelectorVO>> getContentSelectors();
 
     @GET("v1/routing-rules")

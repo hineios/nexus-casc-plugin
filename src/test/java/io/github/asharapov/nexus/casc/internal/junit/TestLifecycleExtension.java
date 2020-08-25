@@ -61,7 +61,10 @@ public class TestLifecycleExtension implements BeforeAllCallback, AfterAllCallba
 
     @Override
     public void preDestroyTestInstance(final ExtensionContext ectx) throws Exception {
-        final Object testInstance = ectx.getTestInstance().get();
+        final Object testInstance = ectx.getTestInstance().orElse(null);
+        if (testInstance == null) {
+            return;
+        }
         log.debug("pre destroy test instance {} ...", testInstance);
         // Destroys all running containers whose lifecycle is limited by the lifetime of the specified test instance ...
         ReflectionUtils.findFields(testInstance.getClass(), isInjectedDedicatedContainers(), ReflectionUtils.HierarchyTraversalMode.TOP_DOWN)
