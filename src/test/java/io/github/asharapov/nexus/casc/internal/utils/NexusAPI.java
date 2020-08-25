@@ -49,10 +49,10 @@ public interface NexusAPI {
     @GET("v1/status")
     Call<Void> checkStatus();
 
-    @GET("beta/email")
+    @GET("v1/email")
     Call<EmailVO> getEmail();
 
-    @POST("beta/email/verify")
+    @POST("v1/email/verify")
     Call<ResultVO> verifyEmail(@Body RequestBody email);
 
     @GET("v1/iq")
