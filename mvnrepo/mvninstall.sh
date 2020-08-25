@@ -1,6 +1,6 @@
 SRC="."
 DST="."
-VER="3.24.0-02"
+VER="3.25.1-04"
 GROUP=com.sonatype.nexus.plugins
 ARTIFACT=nexus-ldap-plugin
 #ARTIFACT=nexus-healthcheck-base
