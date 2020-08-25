@@ -53,7 +53,18 @@ the API remains consistent.
 Deploy the .kar archive using the upstream `sonatype/nexus3` image in the `/opt/sonatype/nexus/deploy/` directory.
 The plugin will be automatically installed on startup.
 
-It expects a YAML configuration file to be mounted to `/opt/nexus.yml` (This path can be overridden using the either `NEXUS_CASC_IMPORT_PATH` or `NEXUS_CASC_CONFIG` env var).  
+Example of a custom Nexus docker image with the CasC plugin installed (you may need to update the Nexus and plugin versions):
+```dockerfile
+FROM sonatype/nexus3:3.25.1
+ARG PLUGIN_VERSION=3.25.1.1
+USER root
+RUN set -eux; \
+    curl -L -o /opt/sonatype/nexus/deploy/nexus-casc-plugin-${PLUGIN_VERSION}-bundle.kar \
+        https://repo1.maven.org/maven2/io/github/asharapov/nexus/nexus-casc-plugin/${PLUGIN_VERSION}/nexus-casc-plugin-${PLUGIN_VERSION}-bundle.kar;
+USER nexus
+``` 
+
+The CasC plugin expects a YAML configuration file to be mounted to `/opt/nexus.yml` (this path can be overridden using the either `NEXUS_CASC_IMPORT_PATH` or `NEXUS_CASC_CONFIG` env var).  
 Start Nexus as usual.
 
 The simplest and recommended procedure for preparing a YAML configuration file is as follows:
@@ -61,6 +72,7 @@ The simplest and recommended procedure for preparing a YAML configuration file i
 2. Using standard Nexus administration tools, make all the necessary changes to its settings.
 3. Export the current Nexus server settings to a file using the plugin REST API or 'CASC - Export configuration' task.
 4. Use the resulting YAML file as a template to set up your Nexus target servers.  
+
 **Known issues**:  
 When exporting the current server configuration, the following parameters cannot be restored:
    - sources for downloading trusted certificates (paths/urls to PEM files, list of external hosts);
