@@ -53,19 +53,31 @@ the API remains consistent.
 Deploy the .kar archive using the upstream `sonatype/nexus3` image in the `/opt/sonatype/nexus/deploy/` directory.
 The plugin will be automatically installed on startup.
 
-Example of a custom Nexus docker image with the CasC plugin installed (you may need to update the Nexus and plugin versions):
+An example of a custom Nexus docker image with the CasC plugin installed (you may need to update the Nexus and plugin versions):
 ```dockerfile
-FROM sonatype/nexus3:3.26.1
-ARG PLUGIN_VERSION=3.26.1.1
+FROM sonatype/nexus3:3.27.0
+ARG PLUGIN_VERSION=3.27.0.1
 USER root
 RUN set -eux; \
-    curl -L -o /opt/sonatype/nexus/deploy/nexus-casc-plugin-${PLUGIN_VERSION}-bundle.kar \
+    curl -L -f -o /opt/sonatype/nexus/deploy/nexus-casc-plugin-${PLUGIN_VERSION}-bundle.kar \
         https://repo1.maven.org/maven2/io/github/asharapov/nexus/nexus-casc-plugin/${PLUGIN_VERSION}/nexus-casc-plugin-${PLUGIN_VERSION}-bundle.kar;
 USER nexus
 ``` 
 
 The CasC plugin expects a YAML configuration file to be mounted to `/opt/nexus.yml` (this path can be overridden using the either `NEXUS_CASC_IMPORT_PATH` or `NEXUS_CASC_CONFIG` env var).  
 Start Nexus as usual.
+
+An example of a custom Nexus image with the CasC plugin and config file installed: 
+```dockerfile
+FROM sonatype/nexus3:3.27.0
+ARG PLUGIN_VERSION=3.27.0.1
+USER root
+RUN set -eux; \
+    curl -L -f -o /opt/sonatype/nexus/deploy/nexus-casc-plugin-${PLUGIN_VERSION}-bundle.kar \
+        https://repo1.maven.org/maven2/io/github/asharapov/nexus/nexus-casc-plugin/${PLUGIN_VERSION}/nexus-casc-plugin-${PLUGIN_VERSION}-bundle.kar;
+USER nexus
+COPY my-nexus-config.yml /opt/nexus.yml
+``` 
 
 The simplest and recommended procedure for preparing a YAML configuration file is as follows:
 1. Start a separate instance of the Nexus server with the CasC plugin installed.
@@ -138,6 +150,11 @@ Use `${file:/path/to/a/file}` to include the contents of a file.
 To build a plugin, use the command:
 ```shell script
 $ mvn -U clean package
+```
+
+To deploy the built version of the plugin to *maven central* use the command
+```shell script
+$ mvn -U clean deploy -P release.oss
 ```
 
 To run all integration tests and generate a report on their execution, use the command:
