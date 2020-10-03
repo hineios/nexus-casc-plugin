@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,13 +23,13 @@ public class MinioServer extends GenericContainer<MinioServer> {
 
     private static final Logger log = LoggerFactory.getLogger(MinioServer.class);
 
-    private static final String IMAGE_NAME = "minio/minio:latest";
+    private static final DockerImageName IMAGE = DockerImageName.parse("minio/minio:latest");
     private static final String ACCESS_KEY = "admin";
     private static final String SECRET_KEY = "admin123";
     private static final List<String> TEST_BUCKETS = Arrays.asList("store1", "store2");
 
     public MinioServer() {
-        super(IMAGE_NAME);
+        super(IMAGE);
         withExposedPorts(9000);
         waitingFor(Wait.forHttp("/minio/health/live").forStatusCodeMatching(it -> it >= 200 && it < 300));
         withCommand("server", "/data");

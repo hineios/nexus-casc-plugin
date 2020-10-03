@@ -5,6 +5,7 @@ import com.github.dockerjava.api.exception.NotFoundException;
 import io.github.asharapov.nexus.casc.internal.Utils;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 import java.nio.charset.StandardCharsets;
@@ -19,13 +20,13 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class NexusServer extends GenericContainer<NexusServer> {
 
-    private static final String IMAGE_NAME = "sonatype/nexus3:" + System.getProperty("nexus.docker.version", "latest");
+    private static final DockerImageName IMAGE = DockerImageName.parse( "sonatype/nexus3:" + System.getProperty("nexus.docker.version", "latest") );
 
     private final ConcurrentMap<String, NexusAPI> clientAPIs;
     private volatile String adminPassword;
 
     public NexusServer() {
-        super(IMAGE_NAME);
+        super(IMAGE);
         this.clientAPIs = new ConcurrentHashMap<>();
         withExposedPorts(8081);
         waitingFor(Wait.forListeningPort());

@@ -65,6 +65,16 @@ public class ContainersModule extends AbstractModule {
     @Provides
     @DedicatedInstance
     protected NexusServer provideCustomNexusServer(final Network network) {
+        return makeNexusServer(network);
+    }
+
+    @Provides
+    @Singleton
+    protected NexusServer provideCommonNexusServer(final Network network) {
+        return makeNexusServer(network);
+    }
+
+    private NexusServer makeNexusServer(final Network network) {
         log.info("deploy nexus server instance ...");
         final long started = System.currentTimeMillis();
         final NexusServer container = new NexusServer();
@@ -78,12 +88,6 @@ public class ContainersModule extends AbstractModule {
             addError(e);
             throw new RuntimeException(e);
         }
-    }
-
-    @Provides
-    @Singleton
-    protected NexusServer provideCommonNexusServer(final Network network) {
-        return provideCustomNexusServer(network);
     }
 
     @Provides

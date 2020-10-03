@@ -62,7 +62,7 @@
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
         <snakeyaml.version>1.26</snakeyaml.version>
         <junit.version>5.6.2</junit.version>
-        <testcontainers.version>1.14.3</testcontainers.version>
+        <testcontainers.version>1.15.0-rc2</testcontainers.version>
         <fasterxml.version>2.11.1</fasterxml.version>
         <retrofit.version>2.9.0</retrofit.version>
         <allure.version>2.13.5</allure.version>
