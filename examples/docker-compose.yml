@@ -59,20 +59,19 @@ services:
     restart: unless-stopped
 
   minio:
-    image: bitnami/minio:latest
+    image: minio/minio:latest
     container_name: minio
     environment:
-      - MINIO_ACCESS_KEY_FILE=/run/secrets/minio_accesskey
-      - MINIO_SECRET_KEY_FILE=/run/secrets/minio_secretkey
-      - MINIO_DEFAULT_BUCKETS=store1,store2
+      - MINIO_ACCESS_KEY_FILE=minio_accesskey
+      - MINIO_SECRET_KEY_FILE=minio_secretkey
     volumes:
       - minio-data:/data
-      - minio-certs:/certs
     secrets:
       - minio_accesskey
       - minio_secretkey
     ports:
       - 9000:9000
+    command: server /data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -82,7 +81,6 @@ services:
       nexus:
         aliases:
           - store1.minio
-          - store2.minio
     restart: unless-stopped
 
 #  iq:
