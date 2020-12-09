@@ -25,6 +25,7 @@ public class RepositoryVO {
     public AptSigningAttrs aptSigning;
     public BowerAttrs bower;
     public NugetAttrs nugetProxy;
+    public NpmAttrs npm;
     public String routingRuleName;
 
 
@@ -128,5 +129,10 @@ public class RepositoryVO {
 
     public static class NugetAttrs {
         public Integer queryCacheItemMaxAge;
+        public String nugetVersion;
+    }
+
+    public static class NpmAttrs {
+        public Boolean removeNonCataloged;
     }
 }

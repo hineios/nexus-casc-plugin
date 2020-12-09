@@ -107,7 +107,7 @@ public interface NexusAPI {
     Call<ResponseBody> fireTask(@Path("id") String taskId);
 
 
-    @GET("beta/repositories")
+    @GET("v1/repositorySettings")
     Call<List<RepositoryVO>> getRepositories();
 
 
