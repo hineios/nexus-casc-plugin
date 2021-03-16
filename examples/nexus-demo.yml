@@ -358,6 +358,8 @@ repositoryConfig:
           strictContentTypeValidation: true
           writePolicy: ALLOW
           latestPolicy: false
+        component:
+          proprietaryComponents: true
     - name: docker-proxy
       recipeName: docker-proxy
       online: true
@@ -413,6 +415,8 @@ repositoryConfig:
           blobStoreName: maven
           strictContentTypeValidation: true
           writePolicy: ALLOW
+        component:
+          proprietaryComponents: true
     - name: maven-releases
       recipeName: maven2-hosted
       online: true
@@ -424,6 +428,8 @@ repositoryConfig:
           blobStoreName: maven
           strictContentTypeValidation: true
           writePolicy: ALLOW_ONCE
+        component:
+          proprietaryComponents: true
     - name: maven-central
       recipeName: maven2-proxy
       online: true

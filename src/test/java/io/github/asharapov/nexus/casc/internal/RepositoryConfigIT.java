@@ -757,6 +757,7 @@ public class RepositoryConfigIT {
         mavenSnapshots.putAttribute("storage", "writePolicy", "ALLOW");
         mavenSnapshots.putAttribute("maven", "versionPolicy", "SNAPSHOT");
         mavenSnapshots.putAttribute("maven", "layoutPolicy", "STRICT");
+        mavenSnapshots.putAttribute("component", null, null);
 
         final RepositoryConfig.Repository mavenReleases = new RepositoryConfig.Repository("test-maven-releases", "maven2-hosted", true);
         mavenReleases.putAttribute("storage", "blobStoreName", mavenStore.name);
@@ -764,6 +765,7 @@ public class RepositoryConfigIT {
         mavenReleases.putAttribute("storage", "writePolicy", "ALLOW_ONCE");
         mavenReleases.putAttribute("maven", "versionPolicy", "RELEASE");
         mavenReleases.putAttribute("maven", "layoutPolicy", "STRICT");
+        mavenReleases.putAttribute("component", "proprietaryComponents", true);
 
         final RepositoryConfig.Repository mavenCentral = new RepositoryConfig.Repository("test-maven-central", "maven2-proxy", true);
         mavenCentral.putAttribute("storage", "blobStoreName", mavenStore.name);
@@ -837,6 +839,8 @@ public class RepositoryConfigIT {
                 assertNotNull(repo.maven);
                 assertEquals(SNAPSHOT, repo.maven.versionPolicy, "Unexpected repository attr: [maven]versionPolicy");
                 assertEquals(STRICT, repo.maven.layoutPolicy, "Unexpected repository attr: [maven]layoutPolicy");
+                assertNotNull(repo.component);
+                assertEquals(false, repo.component.proprietaryComponents, "Unexpected repository attr: [component]proprietaryComponents");
 
                 repo = repos.stream()
                         .filter(s -> mavenReleases.name.equals(s.name))
@@ -852,6 +856,8 @@ public class RepositoryConfigIT {
                 assertNotNull(repo.maven);
                 assertEquals(RELEASE, repo.maven.versionPolicy, "Unexpected repository attr: [maven]versionPolicy");
                 assertEquals(STRICT, repo.maven.layoutPolicy, "Unexpected repository attr: [maven]layoutPolicy");
+                assertNotNull(repo.component);
+                assertEquals(true, repo.component.proprietaryComponents, "Unexpected repository attr: [component]proprietaryComponents");
 
                 repo = repos.stream()
                         .filter(s -> mavenCentral.name.equals(s.name))

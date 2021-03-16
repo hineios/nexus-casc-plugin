@@ -19,6 +19,7 @@ import io.github.asharapov.nexus.casc.internal.model.TaskListVO;
 import io.github.asharapov.nexus.casc.internal.model.UserVO;
 import io.github.asharapov.nexus.casc.internal.utils.NexusAPI;
 import io.github.asharapov.nexus.casc.internal.utils.NexusServer;
+import io.github.asharapov.nexus.casc.internal.utils.TestUtils;
 import io.qameta.allure.Description;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;

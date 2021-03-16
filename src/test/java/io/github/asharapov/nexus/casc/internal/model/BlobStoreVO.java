@@ -4,6 +4,7 @@ public class BlobStoreVO {
 
     public String name;
     public String type;
+    public boolean unavailable;
     public int blobCount;
     public long totalSizeInBytes;
     public long availableSpaceInBytes;

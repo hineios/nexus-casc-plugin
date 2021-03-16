@@ -17,6 +17,7 @@ public class RepositoryVO {
     public Group group;
     public NegativeCache negativeCache;
     public Http httpClient;
+    public Component component;
     public MavenAttrs maven;
     public DockerAttrs docker;
     public DockerProxyAttrs dockerProxy;
@@ -70,6 +71,7 @@ public class RepositoryVO {
         public Integer timeout;
         public boolean enableCircularRedirects;
         public boolean enableCookies;
+        public boolean useTrustStore;
     }
 
     public static class Authentication {
@@ -80,6 +82,10 @@ public class RepositoryVO {
         public String username;
         public String ntlmHost;
         public String ntlmDomain;
+    }
+
+    public static class Component {
+        public boolean proprietaryComponents;
     }
 
     public static class MavenAttrs {

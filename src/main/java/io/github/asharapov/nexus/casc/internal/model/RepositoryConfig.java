@@ -152,7 +152,9 @@ public class RepositoryConfig {
 
         public void putAttribute(final String attrGroup, final String attrName, final Object attrValue) {
             final Map<String, Object> map = this.attrs.computeIfAbsent(attrGroup, (k) -> new HashMap<>());
-            map.put(attrName, attrValue);
+            if (attrName != null) {
+                map.put(attrName, attrValue);
+            }
         }
 
         @Override
