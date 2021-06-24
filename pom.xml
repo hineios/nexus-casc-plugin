@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.sonatype.nexus.plugins</groupId>
         <artifactId>nexus-plugins</artifactId>
-        <version>3.30.0-01</version>
+        <version>3.31.1-01</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.asharapov.nexus</groupId>
     <artifactId>nexus-casc-plugin</artifactId>
-    <version>3.30.0.1</version>
+    <version>3.31.1.1</version>
     <packaging>bundle</packaging>
 
     <name>nexus-casc-plugin</name>
@@ -55,17 +55,17 @@
     </issueManagement>
 
     <properties>
-        <nexus.docker.version>3.30.0</nexus.docker.version>
-        <nexus.pkg.version>3.30.0-01</nexus.pkg.version>
+        <nexus.docker.version>3.31.1</nexus.docker.version>
+        <nexus.pkg.version>3.31.1-01</nexus.pkg.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
-        <snakeyaml.version>1.26</snakeyaml.version>
-        <junit.version>5.7.1</junit.version>
-        <testcontainers.version>1.15.2</testcontainers.version>
+        <snakeyaml.version>1.28</snakeyaml.version>
+        <junit.version>5.7.2</junit.version>
+        <testcontainers.version>1.15.3</testcontainers.version>
         <fasterxml.version>2.11.4</fasterxml.version>
         <retrofit.version>2.9.0</retrofit.version>
-        <allure.version>2.13.8</allure.version>
+        <allure.version>2.14.0</allure.version>
         <aspectj.version>1.9.6</aspectj.version>
     </properties>
 
@@ -192,7 +192,6 @@
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>4.2.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -1,6 +1,7 @@
 package io.github.asharapov.nexus.casc.internal.model;
 
 public class S3BlobStoreVO {
+    public String type;
     public String name;
     public BlobStoreVO.Quota softQuota;
     public Configuration bucketConfiguration;
@@ -20,6 +21,7 @@ public class S3BlobStoreVO {
 
     public static class Security {
         public String accessKeyId;
+        public String secretAccessKey;
         public String role;
         public String sessionToken;
     }

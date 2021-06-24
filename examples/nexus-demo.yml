@@ -335,7 +335,7 @@ repositoryConfig:
       type: csel
       description: Content selector example
       attrs:
-        expression: format=="maven2" and path=~"^/org/apache/.*" and coordinate.extension=="pom"
+        expression: format=="maven2" and path=~"^/org/apache/.*"
   selectorsToDelete: []
   routingRules:
     - name: test-rule

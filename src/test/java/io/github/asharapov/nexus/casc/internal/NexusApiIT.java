@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Anton Sharapov
  */
 @IntegrationTest
-@Tag("REST API")
+@Tag("rest")
 public class NexusApiIT {
 
     private static final Logger log = LoggerFactory.getLogger(NexusApiIT.class);

@@ -498,7 +498,7 @@ public class RepositoryConfigIT {
         selector1.attrs.put("expression", "format == \"raw\"");
         selector1.description = "selector #1 testing";
         final RepositoryConfig.Selector selector2 = new RepositoryConfig.Selector("test-selector-2", "csel");
-        selector2.attrs.put("expression", "format == \"npm\" or (format==\"maven2\" and coordinate.extension==\"pom\" and path =~ \"^/org/apache/.*\")");
+        selector2.attrs.put("expression", "format == \"npm\" or (format==\"maven2\" and path =~ \"^/org/apache/.*\")");
         selector2.description = "selector #2 testing";
 
         step("1. Checking the plugin's ability to register new content selectors", () -> {

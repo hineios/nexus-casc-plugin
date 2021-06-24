@@ -55,8 +55,8 @@ The plugin will be automatically installed on startup.
 
 An example of a custom Nexus docker image with the CasC plugin installed (you may need to update the Nexus and plugin versions):
 ```dockerfile
-FROM sonatype/nexus3:3.30.0
-ARG PLUGIN_VERSION=3.30.0.1
+FROM sonatype/nexus3:3.31.1
+ARG PLUGIN_VERSION=3.31.1.1
 USER root
 RUN set -eux; \
     curl -L -f -o /opt/sonatype/nexus/deploy/nexus-casc-plugin-${PLUGIN_VERSION}-bundle.kar \
@@ -69,8 +69,8 @@ Start Nexus as usual.
 
 An example of a custom Nexus image with the CasC plugin and config file installed: 
 ```dockerfile
-FROM sonatype/nexus3:3.30.0
-ARG PLUGIN_VERSION=3.30.0.1
+FROM sonatype/nexus3:3.31.1
+ARG PLUGIN_VERSION=3.31.1.1
 USER root
 RUN set -eux; \
     curl -L -f -o /opt/sonatype/nexus/deploy/nexus-casc-plugin-${PLUGIN_VERSION}-bundle.kar \
@@ -164,6 +164,6 @@ $ mvn -U clean verify allure:aggregate
 
 To show the generated report, you can use the command below, but it is better to use the [allure](http://allure.qatools.ru/) plugin for your preferred CI/CD service.
 ```shell script
-./.allure/allure-2.13.8/bin/allure open -h localhost -p 35000 target/site/allure-maven-plugin
+./.allure/allure-2.14.0/bin/allure open -h localhost -p 35000 target/site/allure-maven-plugin
 ```
 
