@@ -62,8 +62,8 @@ services:
     image: minio/minio:latest
     container_name: minio
     environment:
-      - MINIO_ACCESS_KEY_FILE=minio_accesskey
-      - MINIO_SECRET_KEY_FILE=minio_secretkey
+      - MINIO_ROOT_USER_FILE=minio_accesskey
+      - MINIO_ROOT_PASSWORD_FILE=minio_secretkey
     volumes:
       - minio-data:/data
     secrets:
@@ -71,7 +71,8 @@ services:
       - minio_secretkey
     ports:
       - 9000:9000
-    command: server /data
+      - 9001:9001
+    command: server /data --console-address ":9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
