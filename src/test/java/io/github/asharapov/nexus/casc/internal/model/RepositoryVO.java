@@ -95,8 +95,12 @@ public class RepositoryVO {
         public enum LayoutPolicy {
             STRICT, PERMISSIVE
         }
+        public enum ContentDisposition {
+            INLINE, ATTACHMENT
+        }
         public VersionPolicy versionPolicy;
         public LayoutPolicy layoutPolicy;
+        public ContentDisposition contentDisposition;
     }
 
     public static class DockerAttrs {
