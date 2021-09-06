@@ -120,12 +120,12 @@ public class SecurityConfigHandler {
         config.ldapServers = getLdapConfigurations();
         config.realms = getRealms();
         config.privileges = getPrivileges(opts);
-        config.privilegesToDelete = null;
+        config.privilegesToDelete = new ArrayList<>();
         config.roles = getRoles(opts);
-        config.rolesToDelete = null;
+        config.rolesToDelete = new ArrayList<>();
         config.users = getUsers(opts);
-        config.usersToDelete = null;
-        config.pruneOtherUsers = null;
+        config.usersToDelete = new ArrayList<>();
+        config.pruneOtherUsers = false;
         return config;
     }
 

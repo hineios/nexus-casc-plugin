@@ -122,7 +122,7 @@ securityConfig:
         ldapGroupsAsRoles: true
         userMemberOfAttr: null
   realms:
-    - name: org.sonatype.repository.conan.internal.security.token.ConanTokenRealm
+    - name: ConanToken
       enabled: false
     - name: DefaultRole
       enabled: false

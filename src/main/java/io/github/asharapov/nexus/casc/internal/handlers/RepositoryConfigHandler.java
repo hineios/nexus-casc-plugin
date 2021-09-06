@@ -118,7 +118,7 @@ public class RepositoryConfigHandler {
         config.routingRulesToDelete = new ArrayList<>();
         config.repositories = getRepositories();
         config.repositoriesToDelete = new ArrayList<>();
-        config.pruneOtherRepositories = null;
+        config.pruneOtherRepositories = false;
         return config;
     }
 
