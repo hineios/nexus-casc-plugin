@@ -876,6 +876,7 @@ public class SecurityConfigHandler {
         }
         final Set<String> allowedKeys = allowedUsers.stream().map(u -> u.id).collect(Collectors.toSet());
         final UserSearchCriteria criteria = new UserSearchCriteria();
+        criteria.setSource(DEFAULT_AUTH_SOURCE);
         for (User user : securitySystem.searchUsers(criteria)) {
             if (allowedKeys.contains(user.getUserId())) {
                 continue;
