@@ -164,6 +164,6 @@ $ mvn -U clean verify allure:aggregate
 
 To show the generated report, you can use the command below, but it is better to use the [allure](http://allure.qatools.ru/) plugin for your preferred CI/CD service.
 ```shell script
-./.allure/allure-2.16.1/bin/allure open -h localhost -p 35000 target/site/allure-maven-plugin
+./.allure/allure-2.17.3/bin/allure open -h localhost -p 35000 target/site/allure-maven-plugin
 ```
 

@@ -62,10 +62,10 @@
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
         <snakeyaml.version>1.28</snakeyaml.version>
         <junit.version>5.8.2</junit.version>
-        <testcontainers.version>1.16.2</testcontainers.version>
+        <testcontainers.version>1.16.3</testcontainers.version>
         <fasterxml.version>2.11.4</fasterxml.version>
         <retrofit.version>2.9.0</retrofit.version>
-        <allure.version>2.16.1</allure.version>
+        <allure.version>2.17.3</allure.version>
         <aspectj.version>1.9.6</aspectj.version>
     </properties>
 
@@ -75,6 +75,13 @@
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
                 <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-bom</artifactId>
+                <version>${allure.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -186,7 +193,6 @@
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-junit5</artifactId>
-            <version>${allure.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -338,7 +344,7 @@
             <plugin>
                 <groupId>io.qameta.allure</groupId>
                 <artifactId>allure-maven</artifactId>
-                <version>2.10.0</version>
+                <version>2.11.2</version>
                 <configuration>
                     <reportVersion>${allure.version}</reportVersion>
                     <allureDownloadUrl>https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/${allure.version}/allure-commandline-${allure.version}.zip</allureDownloadUrl>
@@ -433,7 +439,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.3.0</version>
+                        <version>3.3.2</version>
                         <configuration>
                             <failOnError>false</failOnError>
                         </configuration>
