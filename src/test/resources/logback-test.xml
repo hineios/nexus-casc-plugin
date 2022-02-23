@@ -14,7 +14,9 @@
         </encoder>
     </appender>
 
-    <logger name="com.weareadaptive.nexus.casc" level="DEBUG"/>
+    <logger name="io.github.asharapov" level="DEBUG"/>
+    <logger name="com.github.dockerjava" level="DEBUG"/>
+    <logger name="org.testcontainers" level="DEBUG"/>
     <logger name="org.apache.http" level="DEBUG"/>
     <logger name="org.apache.http.wire" level="ERROR"/>
     <!-- <logger name="org.apache.http.impl.conn" level="DEBUG"/> -->

@@ -1,6 +1,7 @@
 package io.github.asharapov.nexus.casc.internal.utils;
 
 import com.github.dockerjava.api.model.ContainerNetwork;
+import com.github.dockerjava.api.model.HostConfig;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
@@ -11,6 +12,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +33,15 @@ public class MinioServer extends GenericContainer<MinioServer> {
     public MinioServer() {
         super(IMAGE);
         withExposedPorts(9000);
+        withCreateContainerCmdModifier(cmd -> {
+            // required for root-less containers working with the Podman and SELinux environment.
+            HostConfig hc = cmd.getHostConfig();
+            if (hc == null) {
+                hc = new HostConfig();
+                cmd.withHostConfig(hc);
+            }
+            hc.withSecurityOpts(Collections.singletonList("label=disable"));
+        });
         waitingFor(Wait.forHttp("/minio/health/live").forStatusCodeMatching(it -> it >= 200 && it < 300));
         withCommand("server", "/data");
         withEnv("MINIO_ACCESS_KEY", ACCESS_KEY);

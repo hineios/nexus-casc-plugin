@@ -2,6 +2,7 @@ package io.github.asharapov.nexus.casc.internal.utils;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.NotFoundException;
+import com.github.dockerjava.api.model.HostConfig;
 import io.github.asharapov.nexus.casc.internal.Utils;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -9,7 +10,9 @@ import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -29,7 +32,16 @@ public class NexusServer extends GenericContainer<NexusServer> {
         super(IMAGE);
         this.clientAPIs = new ConcurrentHashMap<>();
         withExposedPorts(8081);
-        waitingFor(Wait.forListeningPort());
+        withCreateContainerCmdModifier(cmd -> {
+            // required for root-less containers working with the Podman and SELinux environment.
+            HostConfig hc = cmd.getHostConfig();
+            if (hc == null) {
+                hc = new HostConfig();
+                cmd.withHostConfig(hc);
+            }
+            hc.withSecurityOpts(Collections.singletonList("label=disable"));
+        });
+        waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(120)));
 
         mountFile(TestUtils.getCascPluginFile(), "/opt/sonatype/nexus/deploy/");
         for (MountableFile pem : TestUtils.getPemFiles()) {

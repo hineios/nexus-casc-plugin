@@ -1,10 +1,12 @@
 package io.github.asharapov.nexus.casc.internal.utils;
 
 import com.github.dockerjava.api.model.ContainerNetwork;
+import com.github.dockerjava.api.model.HostConfig;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -22,6 +24,15 @@ public class OpenLDAPServer extends GenericContainer<OpenLDAPServer> {
     public OpenLDAPServer() {
         super(IMAGE);
         withExposedPorts(389, 636);
+        withCreateContainerCmdModifier(cmd -> {
+            // required for root-less containers working with the Podman and SELinux environment.
+            HostConfig hc = cmd.getHostConfig();
+            if (hc == null) {
+                hc = new HostConfig();
+                cmd.withHostConfig(hc);
+            }
+            hc.withSecurityOpts(Collections.singletonList("label=disable"));
+        });
         waitingFor(Wait.forListeningPort());
         withCopyFileToContainer(TestUtils.getLdapDataFile(), "/initdb.d/data.ldif");
         withEnv("LDAP_SEED_INTERNAL_LDIF_PATH", "/initdb.d");
