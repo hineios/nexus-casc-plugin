@@ -316,6 +316,7 @@ public class SystemConfigIT {
     @Order(5)
     @Description("Checking the capabilities of the CASC plugin API to Sonatype Nexus IQ server integration")
     void testIqServerIntegration() {
+        final String passwordPlaceholder = "#~NXRM~PLACEHOLDER~PASSWORD~#";
         final SystemConfig.IqServer server = new SystemConfig.IqServer();
         server.enabled = true;
         server.url = "http://iq:8070";
@@ -355,7 +356,7 @@ public class SystemConfigIT {
                 assertEquals(server.enabled, iq.enabled, "Unexpected iq server integration status");
                 assertEquals(server.url, iq.url, "Unexpected iq server url");
                 assertEquals(server.username, iq.username, "Unexpected iq server username");
-                assertNull(iq.password, "Unexpected iq server password");
+                assertEquals(passwordPlaceholder, iq.password, "Unexpected iq server password (mask)");
                 assertNotNull(iq.authenticationType, "Iq server auth type not specified");
                 assertEquals(server.authType.name(), iq.authenticationType.name(), "Unexpected iq server auth type");
                 assertEquals(server.showLink == Boolean.TRUE, iq.showLink, "Unexpected iq server showLink option");
@@ -398,7 +399,7 @@ public class SystemConfigIT {
                 assertEquals(server1.enabled, iq.enabled, "Unexpected iq server integration status");
                 assertEquals(server.url, iq.url, "Unexpected iq server url");
                 assertEquals(server.username, iq.username, "Unexpected iq server username");
-                assertNull(iq.password, "Unexpected iq server password");
+                assertEquals(passwordPlaceholder, iq.password, "Unexpected iq server password (mask)");
                 assertNotNull(iq.authenticationType, "Iq server auth type not specified");
                 assertEquals(server.authType.name(), iq.authenticationType.name(), "Unexpected iq server auth type");
                 assertEquals(server1.showLink == Boolean.TRUE, iq.showLink, "Unexpected iq server showLink option");

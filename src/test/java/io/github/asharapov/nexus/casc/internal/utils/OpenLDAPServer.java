@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class OpenLDAPServer extends GenericContainer<OpenLDAPServer> {
 
-    private static final DockerImageName IMAGE = DockerImageName.parse("osixia/openldap:1.4.0");
+    private static final DockerImageName IMAGE = DockerImageName.parse("osixia/openldap:1.5.0");
     private static final String ADMIN_PASSWORD = "admin123";
     private static final String LDAP_DOMAIN = "example.org";
     private static final String LDAP_BASE_DN = "dc=example,dc=org";
