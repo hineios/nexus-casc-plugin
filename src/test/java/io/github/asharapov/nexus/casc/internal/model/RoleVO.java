@@ -7,6 +7,7 @@ public class RoleVO {
     public String source;
     public String name;
     public String description;
+    public boolean readOnly;
     public List<String> privileges;
     public List<String> roles;
 }

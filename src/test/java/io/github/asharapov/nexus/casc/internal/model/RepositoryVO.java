@@ -108,6 +108,7 @@ public class RepositoryVO {
         public boolean forceBasicAuth;
         public Integer httpPort;
         public Integer httpsPort;
+        public String subdomain;
     }
 
     public static class DockerProxyAttrs {
@@ -144,5 +145,6 @@ public class RepositoryVO {
 
     public static class NpmAttrs {
         public Boolean removeNonCataloged;
+        public Boolean removeQuarantined;
     }
 }

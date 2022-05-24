@@ -75,6 +75,9 @@ systemConfig:
     - type: OutreachManagementCapability
       notes: Disable the survey on the main page
       enabled: false
+    - type: log4j-visualizer
+      enabled: true
+      notes: Manually added
 #  license:
 #    installFrom: /opt/sonatype-repository-manager-trial.lic
 securityConfig:
