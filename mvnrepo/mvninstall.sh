@@ -34,9 +34,8 @@ installFile() {
 }
 
 
-VER="3.39.0-01"
+VER="3.40.1-01"
 
 installFile "com.sonatype.nexus" "nexus-licensing-extension" "${VER}";
 installFile "com.sonatype.nexus.plugins" "nexus-healthcheck-base" "${VER}";
 installFile "com.sonatype.nexus.plugins" "nexus-ldap-plugin" "${VER}";
-
