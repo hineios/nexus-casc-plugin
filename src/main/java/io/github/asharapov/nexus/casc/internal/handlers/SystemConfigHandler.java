@@ -188,7 +188,7 @@ public class SystemConfigHandler {
             return null;
         }
         final ConnectionConfiguration connCfg = cfg.getConnection();
-        return connCfg != null ? connCfg.getMaximumRetries() : null;
+        return connCfg != null ? connCfg.getRetries() : null;
     }
 
     private void setConnRetries(final Integer retries) {
