@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 set -ueo pipefail;
 
+CLEAN=0
+if [ "$1" = "--clean" ]; then
+    CLEAN=1
+    shift;
+fi
+
+VER="${1:-3.45.0-01}"
+
+declare -a REQUIRED_DEPS
+REQUIRED_DEPS[0]="com.sonatype.nexus:nexus-licensing-extension"
+REQUIRED_DEPS[1]="com.sonatype.nexus.plugins:nexus-healthcheck-base"
+REQUIRED_DEPS[2]="com.sonatype.nexus.plugins:nexus-ldap-plugin"
+
 BASE_DIR="$(cd -P "$(dirname "${0}")" && pwd)";
 
 installFile() {
@@ -29,13 +42,30 @@ installFile() {
     fi
 
     artifact=$(echo -n "${artifact}" | tr '[:upper:]' '[:lower:]');
-    mvn install:install-file  -DgroupId="${group}" -DartifactId="${artifact}" -Dversion="${version}" \
+    mvn -q install:install-file  -DgroupId="${group}" -DartifactId="${artifact}" -Dversion="${version}" \
                           ${opts} -Dpackaging=jar -DcreateChecksum=true -DlocalRepositoryPath="${BASE_DIR}";
 }
 
+if ! [ -f "nexus-oss.tar.gz" ]; then
+    echo "Downloading Nexus OSS ${VER} ..."
+    wget -q "https://download.sonatype.com/nexus/3/nexus-${VER}-unix.tar.gz" -O nexus-oss.tar.gz
+fi
 
-VER="3.45.0-01"
+echo "Extracting Nexus OSS ${VER} ..."
+tar -zxf nexus-oss.tar.gz
 
-installFile "com.sonatype.nexus" "nexus-licensing-extension" "${VER}";
-installFile "com.sonatype.nexus.plugins" "nexus-healthcheck-base" "${VER}";
-installFile "com.sonatype.nexus.plugins" "nexus-ldap-plugin" "${VER}";
+if [ ${CLEAN} -eq 1 ]; then
+    echo "Cleaning old dependencies ..."
+    rm -rf "${BASE_DIR}/com"
+fi
+
+for dep in ${REQUIRED_DEPS[*]}; do
+    parts=(${dep//:/ })
+    group=${parts[0]}
+    artifact=${parts[1]}
+    cp "nexus-${VER}/system/${group//.//}/${artifact}/${VER}/${artifact}-${VER}.jar" .
+    installFile "${group}" "${artifact}" "${VER}" "."
+done
+
+echo "Cleaning ..."
+rm -rf nexus-oss.tar.gz sonatype-work nexus-${VER} *.jar
