@@ -3,7 +3,7 @@
   <groupId>com.sonatype.nexus</groupId>
   <artifactId>nexus-licensing-extension</artifactId>
   <versioning>
-    <release>3.41.0-01</release>
+    <release>3.45.0-01</release>
     <versions>
       <version>3.24.0-02</version>
       <version>3.25.1-04</version>
@@ -27,7 +27,8 @@
       <version>3.39.0-01</version>
       <version>3.40.1-01</version>
       <version>3.41.0-01</version>
+      <version>3.45.0-01</version>
     </versions>
-    <lastUpdated>20220802050356</lastUpdated>
+    <lastUpdated>20230114173657</lastUpdated>
   </versioning>
 </metadata>
