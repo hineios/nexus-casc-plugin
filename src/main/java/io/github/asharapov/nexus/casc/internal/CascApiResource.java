@@ -13,10 +13,12 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -45,14 +47,14 @@ public class CascApiResource extends ComponentSupport implements Resource, CascA
     @Override
     @GET
     @Path("config")
-    @Produces({"text/vnd.yaml", "text/plain"})
+    @Produces({"application/yaml", "text/plain"})
     @RequiresAuthentication
     @RequiresPermissions("nexus:*")
     public Response getConfiguration(@QueryParam("showReadOnlyObjects") boolean showReadOnlyObjects) {
         try {
             final Options opts = showReadOnlyObjects ? extendedOptions : defaultOptions;
             final String result = configHandler.load(opts);
-            return Response.ok(result, "text/vnd.yaml").build();
+            return Response.ok(result, "application/yaml").build();
         } catch (Exception e) {
             throw new WebApplicationMessageException(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage() + "\n" + Utils.stackTrace(e), MediaType.TEXT_PLAIN);
         }

@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 @Api(value = "CASC")
 public interface CascApiResourceDoc {
 
-    @ApiOperation("Retrieve current configuration.")
+    @ApiOperation(value = "Retrieve current configuration.", nickname = "getCascConfiguration")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The current configuration is returned."),
             @ApiResponse(code = 401, message = "Unauthorized user."),
@@ -27,7 +27,7 @@ public interface CascApiResourceDoc {
             @ApiParam(value = "Option for displaying non-modifiable or hidden objects.", required = false) boolean showReadOnlyObjects
     );
 
-    @ApiOperation("Applies new configuration.")
+    @ApiOperation(value = "Applies new configuration.", nickname = "applyCascConfiguration")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The new configuration was successfully applied on the server."),
             @ApiResponse(code = 401, message = "Unauthorized user."),
